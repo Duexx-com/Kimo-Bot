@@ -3,60 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kimo Bot - VIP Admin Control Center</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>Kimo Bot - 3D Cybernetic Admin Nexus</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
-        body { background: #070a12; color: #e2e8f0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 30px 15px; }
-        h1 { font-family: 'Orbitron', sans-serif; color: #00ffcc; letter-spacing: 1.5px; text-shadow: 0 0 15px rgba(0,255,204,0.4); }
-        .badge { background: rgba(0,255,204,0.1); border: 1px solid #00ffcc; color: #00ffcc; padding: 3px 10px; border-radius: 20px; font-size: 12px; margin: 8px 0 25px; }
-        .card { width: 100%; max-width: 620px; background: #0f1626; border: 1px solid #1e293b; border-radius: 14px; padding: 28px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; margin-bottom: 6px; font-weight: 600; color: #38bdf8; font-size: 12px; text-transform: uppercase; }
-        input, select { width: 100%; padding: 12px; background: #172033; border: 1px solid #2d3b55; border-radius: 8px; color: #fff; font-size: 14px; outline: none; }
-        input:focus, select:focus { border-color: #00ffcc; }
-        button { width: 100%; padding: 13px; background: linear-gradient(90deg, #00ffcc, #00b8d4); border: none; border-radius: 8px; color: #070a12; font-weight: 700; font-size: 15px; cursor: pointer; font-family: 'Orbitron', sans-serif; transition: 0.2s; }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,255,204,0.35); }
-        #resultBox { margin-top: 20px; padding: 15px; background: #172033; border-radius: 8px; border-left: 4px solid #00ffcc; display: none; font-size: 14px; line-height: 1.6; }
+        body {
+            background: #030712;
+            color: #f3f4f6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            perspective: 1000px;
+            overflow-x: hidden;
+        }
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: linear-gradient(rgba(0, 255, 204, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 204, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px; z-index: -1;
+        }
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.5rem;
+            color: #00ffcc;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6), 0 0 40px rgba(0, 184, 212, 0.3);
+            text-align: center;
+            margin-bottom: 5px;
+            transform: translateZ(30px);
+        }
+        .badge {
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid #00ffcc;
+            color: #00ffcc;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+        }
+        .main-container {
+            width: 100%; max-width: 900px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 25px;
+        }
+        @media (max-width: 768px) { .main-container { grid-template-columns: 1fr; } }
+
+        .card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), inset 0 0 20px rgba(0, 255, 204, 0.05);
+            transform-style: preserve-3d;
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px) rotateX(2deg) rotateY(-2deg);
+            box-shadow: 0 30px 60px rgba(0, 255, 204, 0.25), inset 0 0 30px rgba(0, 255, 204, 0.1);
+        }
+        .full-width { grid-column: span 2; }
+        @media (max-width: 768px) { .full-width { grid-column: span 1; } }
+
+        .form-group { margin-bottom: 20px; }
+        label {
+            display: block; margin-bottom: 8px; font-weight: 600;
+            color: #38bdf8; font-size: 11px; text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+        }
+        input, select {
+            width: 100%; padding: 14px; background: rgba(3, 7, 18, 0.9);
+            border: 1px solid #1e293b; border-radius: 10px; color: #fff;
+            font-size: 14px; outline: none; transition: 0.3s;
+        }
+        input:focus, select:focus {
+            border-color: #00ffcc;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+        button {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #00ffcc 0%, #00b8d4 100%);
+            border: none; border-radius: 10px; color: #030712;
+            font-weight: 900; font-size: 16px; cursor: pointer;
+            font-family: 'Orbitron', sans-serif; text-transform: uppercase;
+            letter-spacing: 1px; transition: 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 255, 204, 0.4);
+        }
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.7);
+        }
+        #resultBox {
+            margin-top: 20px; padding: 18px; background: rgba(3, 7, 18, 0.95);
+            border-radius: 10px; border-left: 5px solid #00ffcc;
+            display: none; font-size: 14px; line-height: 1.6; word-break: break-all;
+        }
+
+        /* User Table Styles */
+        .table-container { overflow-x: auto; max-height: 350px; margin-top: 15px; }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 12px 15px; border-bottom: 1px solid #1e293b; }
+        th { background: rgba(0, 255, 204, 0.1); color: #00ffcc; font-family: 'Orbitron', sans-serif; }
+        tr:hover { background: rgba(255, 255, 204, 0.03); }
+        .status-banned { color: #ef4444; font-weight: bold; }
+        .status-active { color: #10b981; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>KIMO CONTROL PANEL</h1>
-    <div class="badge">● SYSTEM ONLINE • RENDER CLOUD</div>
+    <div class="bg-grid"></div>
 
-    <div class="card">
-        <div class="form-group">
-            <label>Admin Dashboard Password</label>
-            <input type="password" id="adminKey" placeholder="Enter your ADMIN_PASSWORD from .env">
+    <h1>KIMO NEXUS</h1>
+    <div class="badge">● 3D QUANTUM ADMIN CONSOLE</div>
+
+    <div class="main-container">
+        <!-- Control Panel Card -->
+        <div class="card">
+            <h2 style="font-family: 'Orbitron'; color: #38bdf8; font-size: 18px; margin-bottom: 20px;">⚡ Action Protocol</h2>
+            
+            <div class="form-group">
+                <label>Admin Security Key</label>
+                <input type="password" id="adminKey" placeholder="Enter ADMIN_PASSWORD">
+            </div>
+
+            <div class="form-group">
+                <label>Select Core Command</label>
+                <select id="actionType" onchange="toggleInputs()">
+                    <option value="seecash">🔍 Inspect User Data</option>
+                    <option value="moneyadd">💰 Add / Remove Balance</option>
+                    <option value="addxp">⭐ Add XP & Level</option>
+                    <option value="setrank">🛡️ Set Custom Rank</option>
+                    <option value="addbadge">🏅 Grant Badge</option>
+                    <option value="botban">🔨 Bot Ban User</option>
+                    <option value="botunban">🔓 Bot Unban User</option>
+                    <option value="reset">⚠️ Reset Economy</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Target Discord User ID</label>
+                <input type="text" id="targetId" placeholder="e.g. 1044855120992665630">
+            </div>
+
+            <div class="form-group" id="valueGroup">
+                <label id="valueLabel">Value / Amount / Reason</label>
+                <input type="text" id="valueInput" placeholder="Enter value...">
+            </div>
+
+            <button onclick="executeAction()">EXECUTE COMMAND</button>
+            <div id="resultBox"></div>
         </div>
 
-        <div class="form-group">
-            <label>Select Command Module</label>
-            <select id="actionType" onchange="toggleInputs()">
-                <option value="seecash">🔍 Inspect User Full Data</option>
-                <option value="moneyadd">💰 Add / Remove KIM Balance</option>
-                <option value="addxp">⭐ Add XP & Auto-Level</option>
-                <option value="setrank">🛡️ Change Custom Rank</option>
-                <option value="addbadge">🏅 Grant Badge Emoji</option>
-                <option value="botban">🔨 Bot Ban User</option>
-                <option value="botunban">🔓 Bot Unban User</option>
-                <option value="reset">⚠️ Reset User Economy</option>
-            </select>
+        <!-- Ban & Status Checker Card -->
+        <div class="card">
+            <h2 style="font-family: 'Orbitron'; color: #38bdf8; font-size: 18px; margin-bottom: 20px;">🛡️ Ban & Security Matrix</h2>
+            <p style="color: #94a3b8; font-size: 13px; margin-bottom: 20px;">Live scanner for active bans, security violations, and global user analytics across all servers.</p>
+            
+            <button onclick="fetchAllUsers()" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); color: #fff;">LOAD ALL REGISTERED USERS</button>
+            <div id="userStats" style="margin-top: 15px; font-size: 13px; color: #cbd5e1;"></div>
         </div>
 
-        <div class="form-group">
-            <label>Target Discord User ID</label>
-            <input type="text" id="targetId" placeholder="e.g. 1044855120992665630">
+        <!-- Full Database Users Table -->
+        <div class="card full-width">
+            <h2 style="font-family: 'Orbitron'; color: #00ffcc; font-size: 18px; margin-bottom: 15px;">🌐 Global User Database</h2>
+            <div class="table-container">
+                <table id="userTable">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Unique Tag</th>
+                            <th>Balance (KIM)</th>
+                            <th>Level</th>
+                            <th>Rank</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td colspan="6" style="text-align: center; color: #64748b;">Click "Load All Registered Users" above to display data.</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-
-        <div class="form-group" id="valueGroup">
-            <label id="valueLabel">Value / Amount / Reason</label>
-            <input type="text" id="valueInput" placeholder="Enter value...">
-        </div>
-
-        <button onclick="executeAction()">EXECUTE ACTION</button>
-        <div id="resultBox"></div>
     </div>
 
     <script>
@@ -93,7 +223,7 @@
             }
 
             resultBox.style.display = 'block';
-            resultBox.innerHTML = '⏳ Executing on Kimo Core...';
+            resultBox.innerHTML = '⚡ Transmitting command to Kimo Quantum Core...';
 
             try {
                 const res = await fetch('/api/admin', {
@@ -106,7 +236,58 @@
                 resultBox.innerHTML = data.success ? `✅ <b>Success:</b><br>${data.message}` : `❌ <b>Error:</b> ${data.error}`;
             } catch (e) {
                 resultBox.style.borderLeftColor = '#ef4444';
-                resultBox.innerHTML = '❌ Connection failed!';
+                resultBox.innerHTML = '❌ Cybernetic link failed!';
+            }
+        }
+
+        async function fetchAllUsers() {
+            const password = document.getElementById('adminKey').value.trim();
+            if (!password) {
+                alert('Please enter your Admin Password first!');
+                return;
+            }
+
+            const tbody = document.querySelector('#userTable tbody');
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #00ffcc;">Scanning database...</td></tr>`;
+
+            try {
+                const res = await fetch('/api/admin/users', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const data = await res.json();
+
+                if (!data.success) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #ef4444;">Error: ${data.error}</td></tr>`;
+                    return;
+                }
+
+                let users = data.users;
+                document.getElementById('userStats').innerHTML = `📊 Total Registered Users in Database: <b>${users.length}</b>`;
+                
+                if (users.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center;">No users found in database.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                users.forEach(u => {
+                    const statusClass = u.isBanned ? 'status-banned' : 'status-active';
+                    const statusText = u.isBanned ? `🚫 Banned (${u.banReason || 'No reason'})` : '✅ Active';
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><code>${u.id}</code></td>
+                        <td>#${u.uniqueID || 'N/A'}</td>
+                        <td>${(u.Money || 0).toLocaleString()}</td>
+                        <td>${u.level || 1}</td>
+                        <td>${u.rank || 'Novice'}</td>
+                        <td class="${statusClass}">${statusText}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (e) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: #ef4444;">Failed to fetch users.</td></tr>`;
             }
         }
         toggleInputs();
