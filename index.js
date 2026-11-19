@@ -103,6 +103,9 @@ client.on('messageCreate', async message => {
 
   const isBotAdmin = userData.botAdmin || userId === process.env.OWNER_ID;
 
+  // ==========================================
+  // 1. HELP & INFO COMMANDS
+  // ==========================================
   if (command === 'help') {
     const helpEmbed = new EmbedBuilder()
       .setTitle('🤖 Kimo Public Bot — Command Center')
@@ -155,6 +158,46 @@ client.on('messageCreate', async message => {
     return message.reply({ embeds: [embed] });
   }
 
+  if (command === 'whois') {
+    const target = message.mentions.users.first() || message.author;
+    const tData = await getUser(target.id);
+    const embed = new EmbedBuilder()
+      .setTitle(`👤 User Info — ${target.username}`)
+      .setColor('#3498db')
+      .setThumbnail(target.displayAvatarURL())
+      .addFields(
+        { name: '🆔 ID', value: `\`${target.id}\``, inline: true },
+        { name: '📅 Created', value: `<t:${Math.floor(target.createdTimestamp / 1000)}:R>`, inline: true },
+        { name: '🏆 Level', value: `Lvl ${tData.level || 1}`, inline: true },
+        { name: '💵 Balance', value: `${numberWithCommas(tData.Money)} KIM`, inline: true }
+      );
+    return message.reply({ embeds: [embed] });
+  }
+
+  // ==========================================
+  // 2. FUN & SOCIAL COMMANDS
+  // ==========================================
+  if (command === 'hug') {
+    const target = message.mentions.users.first();
+    if (!target) return message.reply('❌ Mention someone to hug!');
+    userData.hugcount = (userData.hugcount || 0) + 1;
+    await updateUser(userId, userData);
+    return message.reply(`🤗 <@${userId}> gives a warm hug to <@${target.id}>! So sweet! ❤️`);
+  }
+
+  if (command === 'support') {
+    return message.reply('🔗 Need help? Join our support server or use `&ticketsetup` in your server to open a support ticket!');
+  }
+
+  if (command === 'report') {
+    const issue = args.join(' ');
+    if (!issue) return message.reply('❌ Usage: `&report <describe your issue>`');
+    return message.reply('✅ Your report has been noted and sent to the bot administration team. Thank you!');
+  }
+
+  // ==========================================
+  // 3. SETUP COMMANDS (ADMIN)
+  // ==========================================
   if (command === 'setwelcome') {
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
       return message.reply('❌ You need **Administrator** permission to use this!');
@@ -185,6 +228,9 @@ client.on('messageCreate', async message => {
     return message.delete().catch(() => {});
   }
 
+  // ==========================================
+  // 4. SERVER MODERATION COMMANDS
+  // ==========================================
   if (command === 'clear' || command === 'purge') {
     if (!message.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
       return message.reply('❌ You lack `Manage Messages` permission.');
@@ -256,6 +302,9 @@ client.on('messageCreate', async message => {
     return message.reply({ embeds: [embed] });
   }
 
+  // ==========================================
+  // 5. RPG & ECONOMY COMMANDS
+  // ==========================================
   if (command === 'mine') {
     if (userData.PickaxeHealth <= 0) return message.reply(`❌ Pickaxe broken! Use \`&repair\`.`);
     userData.PickaxeHealth = Math.max(0, userData.PickaxeHealth - 5);
@@ -335,6 +384,9 @@ client.on('messageCreate', async message => {
     return;
   }
 
+  // ==========================================
+  // 6. BOT OWNER & ADMIN COMMANDS
+  // ==========================================
   if (command === 'moneyadd') {
     if (!isBotAdmin) return message.reply('❌ Unauthorized.');
     const target = message.mentions.users.first();
@@ -375,30 +427,11 @@ client.on('messageCreate', async message => {
     await updateUser(target.id, tData);
     return message.reply(`🔓 **${target.username}** has been Unbanned.`);
   }
-
-  if (command === 'whois') {
-    const target = message.mentions.users.first() || message.author;
-    const tData = await getUser(target.id);
-    const embed = new EmbedBuilder()
-      .setTitle(`${isBotAdmin ? '🛡️ Admin Whois' : '👤 User Info'} — ${target.username}`)
-      .setColor(isBotAdmin ? '#9b59b6' : '#3498db')
-      .setThumbnail(target.displayAvatarURL())
-      .addFields(
-        { name: '🆔 ID', value: `\`${target.id}\``, inline: true },
-        { name: '📅 Created', value: `<t:${Math.floor(target.createdTimestamp / 1000)}:R>`, inline: true },
-        { name: '🏆 Level', value: `Lvl ${tData.level || 1}`, inline: true }
-      );
-    if (isBotAdmin) {
-      embed.addFields(
-        { name: '💵 Balance', value: `${numberWithCommas(tData.Money)} KIM`, inline: true },
-        { name: '🚨 Banned?', value: tData.isBanned ? `Yes (${tData.banReason})` : 'No', inline: true }
-      );
-    }
-    return message.reply({ embeds: [embed] });
-  }
 });
 
-// Button Interactions
+// ==========================================
+// BUTTON INTERACTIONS (VERIFY, FLY, TICKETS)
+// ==========================================
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
   const userId = interaction.user.id;
