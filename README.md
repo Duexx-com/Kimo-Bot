@@ -1,2 +1,0 @@
-# Kimo-Bot
-Kimo-Bot
