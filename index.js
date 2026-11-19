@@ -56,7 +56,6 @@ client.on('messageCreate', async message => {
   const userId = message.author.id;
   let userData = await getUser(userId);
 
-  // Auto XP & Leveling (Every 30 seconds cooldown per user)
   if (!userData.isBanned && !xpCooldown.has(userId)) {
     xpCooldown.add(userId);
     setTimeout(() => xpCooldown.delete(userId), 30000);
@@ -104,7 +103,6 @@ client.on('messageCreate', async message => {
 
   const isBotAdmin = userData.botAdmin || userId === process.env.OWNER_ID;
 
-  // Help Command
   if (command === 'help') {
     const helpEmbed = new EmbedBuilder()
       .setTitle('🤖 Kimo Public Bot — Command Center')
@@ -121,7 +119,6 @@ client.on('messageCreate', async message => {
     return message.reply({ embeds: [helpEmbed] });
   }
 
-  // Level & Profile
   if (command === 'level' || command === 'rank') {
     const target = message.mentions.users.first() || message.author;
     const tData = await getUser(target.id);
@@ -158,7 +155,6 @@ client.on('messageCreate', async message => {
     return message.reply({ embeds: [embed] });
   }
 
-  // Setups
   if (command === 'setwelcome') {
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
       return message.reply('❌ You need **Administrator** permission to use this!');
@@ -189,7 +185,6 @@ client.on('messageCreate', async message => {
     return message.delete().catch(() => {});
   }
 
-  // Moderation Commands
   if (command === 'clear' || command === 'purge') {
     if (!message.member.permissions.has(PermissionFlagsBits.ManageMessages)) {
       return message.reply('❌ You lack `Manage Messages` permission.');
@@ -205,49 +200,36 @@ client.on('messageCreate', async message => {
   }
 
   if (command === 'kick') {
-    if (!message.member.permissions.has(PermissionFlagsBits.KickMembers)) {
-      return message.reply('❌ You lack `Kick Members` permission.');
-    }
+    if (!message.member.permissions.has(PermissionFlagsBits.KickMembers)) return message.reply('❌ You lack `Kick Members` permission.');
     const member = message.mentions.members.first();
-    if (!member) return message.reply('❌ Mention a user to kick! Usage: `&kick @user [reason]`');
-    if (!member.kickable) return message.reply('❌ I cannot kick this user.');
-
+    if (!member) return message.reply('❌ Mention a user to kick!');
     const reason = args.slice(1).join(' ') || 'No reason provided';
     await member.kick(reason);
-    return message.reply(`👢 **${member.user.tag}** has been kicked. | Reason: **${reason}**`);
+    return message.reply(`👢 **${member.user.tag}** has been kicked.`);
   }
 
   if (command === 'ban') {
-    if (!message.member.permissions.has(PermissionFlagsBits.BanMembers)) {
-      return message.reply('❌ You lack `Ban Members` permission.');
-    }
+    if (!message.member.permissions.has(PermissionFlagsBits.BanMembers)) return message.reply('❌ You lack `Ban Members` permission.');
     const member = message.mentions.members.first();
-    if (!member) return message.reply('❌ Mention a user to ban! Usage: `&ban @user [reason]`');
-    if (!member.bannable) return message.reply('❌ I cannot ban this user.');
-
+    if (!member) return message.reply('❌ Mention a user to ban!');
     const reason = args.slice(1).join(' ') || 'No reason provided';
     await member.ban({ reason });
-    return message.reply(`🔨 **${member.user.tag}** has been permanently banned. | Reason: **${reason}**`);
+    return message.reply(`🔨 **${member.user.tag}** has been banned.`);
   }
 
   if (command === 'mute' || command === 'timeout') {
-    if (!message.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-      return message.reply('❌ You lack `Timeout Members` permission.');
-    }
+    if (!message.member.permissions.has(PermissionFlagsBits.ModerateMembers)) return message.reply('❌ You lack `Timeout Members` permission.');
     const member = message.mentions.members.first();
     const minutes = parseInt(args[1]) || 10;
     if (!member) return message.reply('❌ Usage: `&mute @user <minutes> [reason]`');
     if (!member.moderatable) return message.reply('❌ I cannot timeout this user.');
-
     const reason = args.slice(2).join(' ') || 'Muted by Moderator';
     await member.timeout(minutes * 60 * 1000, reason);
-    return message.reply(`🔇 **${member.user.tag}** has been muted for **${minutes} minutes**. | Reason: **${reason}**`);
+    return message.reply(`🔇 **${member.user.tag}** has been muted for **${minutes} minutes**.`);
   }
 
   if (command === 'warn') {
-    if (!message.member.permissions.has(PermissionFlagsBits.ModerateMembers)) {
-      return message.reply('❌ You lack `Moderate Members` permission.');
-    }
+    if (!message.member.permissions.has(PermissionFlagsBits.ModerateMembers)) return message.reply('❌ You lack `Moderate Members` permission.');
     const target = message.mentions.users.first();
     const reason = args.slice(1).join(' ');
     if (!target || !reason) return message.reply('❌ Usage: `&warn @user <reason>`');
@@ -274,7 +256,6 @@ client.on('messageCreate', async message => {
     return message.reply({ embeds: [embed] });
   }
 
-  // RPG & Economy
   if (command === 'mine') {
     if (userData.PickaxeHealth <= 0) return message.reply(`❌ Pickaxe broken! Use \`&repair\`.`);
     userData.PickaxeHealth = Math.max(0, userData.PickaxeHealth - 5);
@@ -354,7 +335,6 @@ client.on('messageCreate', async message => {
     return;
   }
 
-  // Bot Admin Commands
   if (command === 'moneyadd') {
     if (!isBotAdmin) return message.reply('❌ Unauthorized.');
     const target = message.mentions.users.first();
@@ -418,7 +398,7 @@ client.on('messageCreate', async message => {
   }
 });
 
-// Button Interactions (Verify, Fly, Tickets)
+// Button Interactions
 client.on('interactionCreate', async interaction => {
   if (!interaction.isButton()) return;
   const userId = interaction.user.id;
@@ -484,7 +464,7 @@ client.on('interactionCreate', async interaction => {
 });
 
 function numberWithCommas(x) {
-  return x.toString().replace(/\B(?<!\d)(\d{3})+(?!\d))/g, ",");
+  return x.toString().replace(/\B(?<!\d)(\d{3})+(?!\d)/g, ",");
 }
 
 client.login(process.env.DISCORD_TOKEN);
